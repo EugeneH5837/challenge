@@ -38,20 +38,21 @@ class PokemonController(
 
     @GetMapping("/types")
     fun getPokemonTypes() {
-
     }
 
     @GetMapping("/list")
     fun getAllPokemonWithFilter(
         @RequestParam(required = false) type: String?,
         @RequestParam(required = false) caught: Boolean?,
-        @RequestParam(required = false, defaultValue = "1") page: Int,
+        @RequestParam(required = false) name: String?,
+        @RequestParam(required = false, defaultValue = "0") page: Int,
         @RequestParam(required = false, defaultValue = "20") size: Int
     ): ResponseEntity<Page<PokemonEntity>> {
         return ResponseEntity.ok(
             pokemonService.getAllPokemonByFilter(
                 type,
                 caught,
+                name,
                 PageRequest.of(page, size)
             )
         )
