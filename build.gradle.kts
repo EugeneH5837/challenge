@@ -14,6 +14,7 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 
 repositories {
 	mavenCentral()
+	jcenter()
 }
 
 dependencies {
@@ -26,6 +27,7 @@ dependencies {
 	// https://mvnrepository.com/artifact/com.h2database/h2
 	implementation("com.h2database:h2:2.1.210")
 	implementation("io.github.microutils:kotlin-logging:2.1.21")
+	implementation("au.com.console:kotlin-jpa-specification-dsl:2.0.0")
 
 }
 

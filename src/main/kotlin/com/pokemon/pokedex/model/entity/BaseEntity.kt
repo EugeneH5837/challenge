@@ -1,10 +1,15 @@
 package com.pokemon.pokedex.model.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.pokemon.pokedex.model.Base
+import javax.persistence.Column
 import javax.persistence.Embeddable
+import javax.persistence.Entity
+import javax.persistence.GeneratedValue
+import javax.persistence.Id
 
-@Embeddable
+@Entity
 data class BaseEntity(
 
   @JsonProperty("HP")
@@ -35,4 +40,10 @@ data class BaseEntity(
       speed
     )
   }
+
+  @Id
+  @Column(name = "id", nullable = false)
+  @GeneratedValue
+  @JsonIgnore
+  open var id: Long? = null
 }

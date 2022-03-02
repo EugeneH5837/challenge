@@ -3,6 +3,8 @@ package com.pokemon.pokedex.controller
 import com.pokemon.pokedex.model.Pokemon
 import com.pokemon.pokedex.model.entity.PokemonEntity
 import com.pokemon.pokedex.service.PokemonService
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.PageRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -41,11 +43,18 @@ class PokemonController(
 
     @GetMapping("/list")
     fun getAllPokemonWithFilter(
-        @RequestParam name: String,
-        @RequestParam type: String,
-        @RequestParam caught: Boolean
-    ) {
-
+        @RequestParam(required = false) type: String?,
+        @RequestParam(required = false) caught: Boolean?,
+        @RequestParam(required = false, defaultValue = "1") page: Int,
+        @RequestParam(required = false, defaultValue = "20") size: Int
+    ): ResponseEntity<Page<PokemonEntity>> {
+        return ResponseEntity.ok(
+            pokemonService.getAllPokemonByFilter(
+                type,
+                caught,
+                PageRequest.of(page, size)
+            )
+        )
     }
 
     @GetMapping("/loaddata")

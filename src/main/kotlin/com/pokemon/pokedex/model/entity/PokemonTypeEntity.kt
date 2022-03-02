@@ -1,9 +1,10 @@
 package com.pokemon.pokedex.model.entity
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import com.pokemon.pokedex.model.Type
-import javax.persistence.Embeddable
+import javax.persistence.*
 
-@Embeddable
+@Entity
 data class PokemonTypeEntity(
   val type: String
 ) {
@@ -12,4 +13,10 @@ data class PokemonTypeEntity(
       type
     )
   }
+
+  @Id
+  @Column(name = "id", nullable = false)
+  @GeneratedValue
+  @JsonIgnore
+  open var id: Long? = null
 }

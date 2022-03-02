@@ -7,18 +7,23 @@ import javax.persistence.*
 @Entity
 data class PokemonEntity(
 
+
   @Id
   val id: Long,
 
-  @Embedded
-  @AttributeOverride(name = "name", column = Column(name = "name"))
+//  @Embedded
+//  @AttributeOverride(name = "name", column = Column(name = "name"))
+  @OneToOne(cascade = [CascadeType.ALL])
+  @JoinColumn
   val name: NameEntity,
 
-  @ElementCollection
+//  @ElementCollection
+  @OneToMany(cascade = [CascadeType.ALL])
+  @JoinColumn
   val type: List<PokemonTypeEntity>,
 
-  @Embedded
-  @AttributeOverride(name = "base", column = Column(name = "base"))
+  @OneToOne(cascade = [CascadeType.ALL])
+  @JoinColumn
   val base: BaseEntity,
 
   var caught: Boolean = false
