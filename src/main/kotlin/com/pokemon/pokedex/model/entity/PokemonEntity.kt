@@ -18,7 +18,7 @@ data class PokemonEntity(
 
     @OneToOne(cascade = [CascadeType.ALL])
     @JoinColumn
-    val name: NameEntity,
+    var name: NameEntity,
 
     @OneToMany(cascade = [CascadeType.ALL])
     @JoinColumn
@@ -31,7 +31,7 @@ data class PokemonEntity(
     var caught: Boolean = false
 ) {
     fun toModel(language: String?): Pokemon {
-        var name: Name? = null
+        val name: Name
         when (language) {
             "english" -> {
                 name = Name(english = this.name.english)
@@ -68,11 +68,11 @@ data class PokemonEntity(
 
     fun toModelWithCorrespondingName(inputName: String): Pokemon {
         val getNameInOneLanguage: Name =
-            if (name.english == inputName) {
+            if (name.english.lowercase() == inputName) {
                 Name(english = name.english)
-            } else if (name.japanese == inputName) {
+            } else if (name.japanese.lowercase() == inputName) {
                 Name(japanese = name.japanese)
-            } else if (name.chinese == inputName) {
+            } else if (name.chinese.lowercase() == inputName) {
                 Name(chinese = name.chinese)
             } else {
                 Name(french = name.french)
@@ -81,55 +81,6 @@ data class PokemonEntity(
         return Pokemon(
             id,
             getNameInOneLanguage,
-            type.stream().map {
-                it.type
-            }.collect(Collectors.toList()),
-            base.toModel(),
-            caught
-        )
-    }
-
-    fun toModelWithSpecifiedNameAndLang(inputName: String, language: String): Pokemon {
-        // input name is bulbasaur
-        // language is french
-        var name: Name? = null
-        when (language) {
-            "english" -> {
-                name = Name(english = this.name.english)
-            }
-            "japanese" -> {
-                name = Name(japanese = this.name.japanese)
-            }
-            "chinese" -> {
-                name = Name(chinese = this.name.chinese)
-            }
-            "french" -> {
-                name = Name(french = this.name.french)
-            }
-            else -> {
-                name = Name(
-                    english = this.name.english,
-                    japanese = this.name.japanese,
-                    chinese = this.name.chinese,
-                    french = this.name.french
-                )
-            }
-        }
-
-//        val getNameInOneLanguage: Name =
-//            if (name.english == inputName) {
-//                Name(english = name.english)
-//            } else if (name.japanese == inputName) {
-//                Name(japanese = name.japanese)
-//            } else if (name.chinese == inputName) {
-//                Name(chinese = name.chinese)
-//            } else {
-//                Name(french = name.french)
-//            }
-
-        return Pokemon(
-            id,
-            name,
             type.stream().map {
                 it.type
             }.collect(Collectors.toList()),

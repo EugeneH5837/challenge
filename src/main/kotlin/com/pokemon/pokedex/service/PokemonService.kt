@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.pokemon.pokedex.model.Pokemon
+import com.pokemon.pokedex.model.entity.NameEntity
 import com.pokemon.pokedex.model.entity.PokemonEntity
 import com.pokemon.pokedex.repository.PokemonJpaRepository
 import com.pokemon.pokedex.repository.PokemonSpecifications
@@ -12,12 +13,17 @@ import mu.KotlinLogging
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.domain.Specification.where
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.bind.annotation.ResponseStatus
+import org.springframework.web.server.ResponseStatusException
+import java.util.*
 import java.util.stream.Collectors
+import kotlin.collections.ArrayList
 
 @Service
 class PokemonService(
-    val pokemonJpaRepository: PokemonJpaRepository,
+    val pokemonRepository: PokemonJpaRepository,
     val pokemonTypeRepository: PokemonTypeJpaRepository,
 ) {
 
@@ -26,7 +32,8 @@ class PokemonService(
     val objectMapper = ObjectMapper()
 
     fun getPokemonById(id: Long, language: String?): Pokemon {
-        val pokemonEntity = pokemonJpaRepository.getById(id)
+        val pokemonEntity = pokemonRepository.findById(id)
+            .orElseThrow{ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find pokemon with ID: $id")}
 
         return pokemonEntity.toModel(language)
     }
@@ -36,26 +43,25 @@ class PokemonService(
     }
 
     fun updatePokemonCaughtStatus(id: Long, caught: Boolean) {
-        val pokemonEntity = pokemonJpaRepository.getById(id)
+        val pokemonEntity = pokemonRepository.getById(id)
         pokemonEntity.caught = caught
         try {
-            pokemonJpaRepository.save(pokemonEntity)
+            pokemonRepository.save(pokemonEntity)
         } catch (ex: Exception) {
             throw RuntimeException("Unable to mark pokemon's caught status as $caught, check your pokemon storage.")
         }
     }
 
     fun getAllPokemonByFilter(type: String?, caught: Boolean?, name: String?, language: String?, pageable: Pageable): List<Pokemon> {
-        return pokemonJpaRepository.findAll(buildSpec(type, name, caught), pageable)
+        return pokemonRepository.findAll(buildSpec(type, name, caught), pageable)
             .stream()
             .map { it ->
-                if (name != null && language != null) {
-                    it.toModelWithSpecifiedNameAndLang(name, language)
-                } else if (name != null) {
-                    it.toModelWithCorrespondingName(name)
-                } else if (language != null) {
+                if (language != null) {
                     it.toModel(language)
-                } else {
+                }
+                else if (name != null) {
+                    it.toModelWithCorrespondingName(name)
+                }  else {
                     it.toModel(null)
                 }
             }
@@ -68,7 +74,7 @@ class PokemonService(
         caught: Boolean?
     ): Specification<PokemonEntity>? {
 
-        var listOfSpecification = ArrayList<Specification<PokemonEntity>>()
+        val listOfSpecification = ArrayList<Specification<PokemonEntity>>()
 
         if (type != null) {
             listOfSpecification.add(PokemonSpecifications.hasType(type))
@@ -98,8 +104,15 @@ class PokemonService(
     fun loadPokemon() {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         val file = this::class.java.classLoader.getResource("data/pokemon.json").readText()
-        val pokemonList: List<PokemonEntity> = objectMapper.readValue(file)
-        logger.info("$pokemonList")
-        pokemonJpaRepository.saveAll(pokemonList)
+        val pokemonList =  objectMapper.readValue<List<PokemonEntity>>(file)
+//        pokemonList.forEach { it ->
+//                it.name = NameEntity(it.name.english.lowercase(), it.name.japanese.lowercase(), it.name.chinese.lowercase(), it.name.french.lowercase())
+//                it.type.forEach{
+//                    pokemonType -> pokemonType.type.lowercase()
+//                }
+//            }
+
+
+        pokemonRepository.saveAll(pokemonList)
     }
 }

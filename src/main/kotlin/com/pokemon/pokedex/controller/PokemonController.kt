@@ -36,6 +36,14 @@ class PokemonController(
         return ResponseEntity.noContent().build()
     }
 
+    @PutMapping("/name/{name}")
+    fun updatePokemonCaughtStatusByName(
+        @PathVariable name: String,
+        @RequestParam caught: Boolean
+    ): ResponseEntity<String> {
+        return ResponseEntity.ok("asdf")
+    }
+
     @GetMapping("/types")
     fun getPokemonTypes(): ResponseEntity<List<String>> {
         return ResponseEntity.ok(pokemonService.getAllPokemonTypes())
@@ -52,9 +60,9 @@ class PokemonController(
     ): ResponseEntity<List<Pokemon>> {
         return ResponseEntity.ok(
             pokemonService.getAllPokemonByFilter(
-                type,
+                type?.lowercase(),
                 caught,
-                name,
+                name?.lowercase(),
                 language,
                 PageRequest.of(page, size)
             )

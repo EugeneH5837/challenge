@@ -17,7 +17,11 @@ class PokemonSpecifications {
         fun hasType(type: String): Specification<PokemonEntity> {
             return Specification { root, query, criteriaBuilder ->
                 query.distinct(true)
-                criteriaBuilder.like(root.join<PokemonEntity, PokemonTypeEntity>("type").get("type"), type)
+                criteriaBuilder.like(
+                    criteriaBuilder.lower(
+                        root.join<PokemonEntity, PokemonTypeEntity>("type").get("type"))
+                    , type.lowercase()
+                )
             }
         }
 
@@ -26,10 +30,10 @@ class PokemonSpecifications {
                 val names: Join<PokemonEntity, NameEntity> = root.join("name")
 
                 criteriaBuilder.or(
-                    criteriaBuilder.like(names.get("english"), name),
-                    criteriaBuilder.like(names.get("japanese"), name),
-                    criteriaBuilder.like(names.get("chinese"), name),
-                    criteriaBuilder.like(names.get("french"), name),
+                    criteriaBuilder.like(criteriaBuilder.lower(names.get("english")), name.lowercase()),
+                    criteriaBuilder.like(criteriaBuilder.lower(names.get("japanese")), name.lowercase()),
+                    criteriaBuilder.like(criteriaBuilder.lower(names.get("chinese")), name.lowercase()),
+                    criteriaBuilder.like(criteriaBuilder.lower(names.get("french")), name.lowercase()),
                 )
             }
         }
