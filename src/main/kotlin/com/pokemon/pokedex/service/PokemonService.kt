@@ -5,75 +5,61 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.pokemon.pokedex.model.Pokemon
-import com.pokemon.pokedex.model.entity.NameEntity
 import com.pokemon.pokedex.model.entity.PokemonEntity
-import com.pokemon.pokedex.model.entity.PokemonTypeEntity
-import com.pokemon.pokedex.repository.PokemonRepository
+import com.pokemon.pokedex.repository.PokemonJpaRepository
+import com.pokemon.pokedex.repository.PokemonSpecifications
+import com.pokemon.pokedex.repository.PokemonTypeJpaRepository
 import mu.KotlinLogging
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.domain.Specification.where
 import org.springframework.stereotype.Service
-import javax.persistence.criteria.Join
+import java.util.stream.Collectors
 
 @Service
 class PokemonService(
-    val pokemonRepository: PokemonRepository
+    val pokemonJpaRepository: PokemonJpaRepository,
+    val pokemonTypeRepository: PokemonTypeJpaRepository,
 ) {
 
     private val logger = KotlinLogging.logger {}
 
     val objectMapper = ObjectMapper()
 
-    fun getPokemonById(id: Long, language: String): Pokemon {
-
-        val pokemonEntity = pokemonRepository.getById(id)
+    fun getPokemonById(id: Long, language: String?): Pokemon {
+        val pokemonEntity = pokemonJpaRepository.getById(id)
 
         return pokemonEntity.toModel(language)
     }
 
+    fun getAllPokemonTypes(): List<String> {
+        return pokemonTypeRepository.getDistinctByType()
+    }
+
     fun updatePokemonCaughtStatus(id: Long, caught: Boolean) {
-        val pokemonEntity = pokemonRepository.getById(id)
+        val pokemonEntity = pokemonJpaRepository.getById(id)
         pokemonEntity.caught = caught
         try {
-            pokemonRepository.save(pokemonEntity)
+            pokemonJpaRepository.save(pokemonEntity)
         } catch (ex: Exception) {
             throw RuntimeException("Unable to mark pokemon's caught status as $caught, check your pokemon storage.")
         }
     }
 
-    fun getAllPokemonByFilter(type: String?, caught: Boolean?, name: String?, pageable: Pageable): Page<PokemonEntity> {
-        return pokemonRepository.findAll(findBySpec(type, name, caught), pageable)
+    fun getAllPokemonByFilter(type: String?, caught: Boolean?, name: String?, pageable: Pageable): List<Pokemon> {
+        return pokemonJpaRepository.findAll(buildSpec(type, name, caught), pageable)
+            .stream()
+            .map { it ->
+                if (name != null) {
+                    it.toModelWithCorrespondingName(name)
+                } else {
+                    it.toModel(null)
+                }
+            }
+            .collect(Collectors.toList())
     }
 
-    fun isCaught(caught: Boolean): Specification<PokemonEntity> {
-        return Specification { root, query, criteriaBuilder ->
-            criteriaBuilder.equal(root.get<PokemonEntity>("caught"), caught)
-        }
-    }
-
-    fun hasType(type: String): Specification<PokemonEntity> {
-        return Specification { root, query, criteriaBuilder ->
-            query.distinct(true)
-            criteriaBuilder.like(root.join<PokemonEntity, PokemonTypeEntity>("type").get("type"), type)
-        }
-    }
-
-    fun hasName(name: String): Specification<PokemonEntity> {
-        return Specification { root, query, criteriaBuilder ->
-            val names: Join<PokemonEntity, NameEntity> = root.join("name")
-
-            criteriaBuilder.or(
-                criteriaBuilder.like(names.get("english"), name),
-                criteriaBuilder.like(names.get("japanese"), name),
-                criteriaBuilder.like(names.get("chinese"), name),
-                criteriaBuilder.like(names.get("french"), name),
-            )
-        }
-    }
-
-    fun findBySpec(
+    private fun buildSpec(
         type: String?,
         name: String?,
         caught: Boolean?
@@ -82,15 +68,15 @@ class PokemonService(
         var listOfSpecification = ArrayList<Specification<PokemonEntity>>()
 
         if (type != null) {
-            listOfSpecification.add(hasType(type))
+            listOfSpecification.add(PokemonSpecifications.hasType(type))
         }
 
         if (name != null) {
-            listOfSpecification.add(hasName(name))
+            listOfSpecification.add(PokemonSpecifications.hasName(name))
         }
 
         if (caught != null) {
-            listOfSpecification.add(isCaught(caught))
+            listOfSpecification.add(PokemonSpecifications.isCaught(caught))
         }
 
         var specifications: Specification<PokemonEntity>? = null
@@ -104,7 +90,6 @@ class PokemonService(
         }
 
         return specifications
-//    return pokemonRepository.findAll(specifications)
     }
 
     fun loadPokemon() {
@@ -112,6 +97,6 @@ class PokemonService(
         val file = this::class.java.classLoader.getResource("pokemon.json").readText()
         val pokemonList: List<PokemonEntity> = objectMapper.readValue(file)
         logger.info("$pokemonList")
-        pokemonRepository.saveAll(pokemonList)
+        pokemonJpaRepository.saveAll(pokemonList)
     }
 }
