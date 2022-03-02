@@ -6,7 +6,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -26,7 +26,7 @@ class PokemonController(
         return ResponseEntity.ok(pokemonService.getPokemonById(id, language))
     }
 
-    @PostMapping("/{id}")
+    @PutMapping("/{id}")
     fun updatePokemonCaughtStatus(
         @PathVariable id: Long,
         @RequestParam caught: Boolean
@@ -46,6 +46,7 @@ class PokemonController(
         @RequestParam(required = false) type: String?,
         @RequestParam(required = false) caught: Boolean?,
         @RequestParam(required = false) name: String?,
+        @RequestParam(required = false) language: String?,
         @RequestParam(required = false, defaultValue = "0") page: Int,
         @RequestParam(required = false, defaultValue = "20") size: Int
     ): ResponseEntity<List<Pokemon>> {
@@ -54,6 +55,7 @@ class PokemonController(
                 type,
                 caught,
                 name,
+                language,
                 PageRequest.of(page, size)
             )
         )

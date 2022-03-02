@@ -1,6 +1,5 @@
 package com.pokemon.pokedex.service
 
-// import au.com.console.jpaspecificationdsl.*
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
@@ -46,12 +45,16 @@ class PokemonService(
         }
     }
 
-    fun getAllPokemonByFilter(type: String?, caught: Boolean?, name: String?, pageable: Pageable): List<Pokemon> {
+    fun getAllPokemonByFilter(type: String?, caught: Boolean?, name: String?, language: String?, pageable: Pageable): List<Pokemon> {
         return pokemonJpaRepository.findAll(buildSpec(type, name, caught), pageable)
             .stream()
             .map { it ->
-                if (name != null) {
+                if (name != null && language != null) {
+                    it.toModelWithSpecifiedNameAndLang(name, language)
+                } else if (name != null) {
                     it.toModelWithCorrespondingName(name)
+                } else if (language != null) {
+                    it.toModel(language)
                 } else {
                     it.toModel(null)
                 }
@@ -94,7 +97,7 @@ class PokemonService(
 
     fun loadPokemon() {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        val file = this::class.java.classLoader.getResource("pokemon.json").readText()
+        val file = this::class.java.classLoader.getResource("data/pokemon.json").readText()
         val pokemonList: List<PokemonEntity> = objectMapper.readValue(file)
         logger.info("$pokemonList")
         pokemonJpaRepository.saveAll(pokemonList)
