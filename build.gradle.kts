@@ -23,6 +23,10 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	// https://mvnrepository.com/artifact/com.h2database/h2
+	implementation("com.h2database:h2:2.1.210")
+	implementation("io.github.microutils:kotlin-logging:2.1.21")
+
 }
 
 tasks.withType<KotlinCompile> {
