@@ -6,6 +6,8 @@ import com.pokemon.pokedex.utility.Constants.CHINESE
 import com.pokemon.pokedex.utility.Constants.ENGLISH
 import com.pokemon.pokedex.utility.Constants.FRENCH
 import com.pokemon.pokedex.utility.Constants.JAPANESE
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 import java.util.stream.Collectors
 import javax.persistence.CascadeType
 import javax.persistence.Entity
@@ -49,13 +51,16 @@ data class PokemonEntity(
             FRENCH -> {
                 name = Name(french = this.name.french)
             }
-            else -> {
+            null -> {
                 name = Name(
                     english = this.name.english,
                     japanese = this.name.japanese,
                     chinese = this.name.chinese,
                     french = this.name.french
                 )
+            }
+            else -> {
+                throw ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid language passed as param")
             }
         }
 

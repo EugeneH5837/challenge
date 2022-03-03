@@ -41,7 +41,7 @@ are retrieved starting from the 0th page with a default page size of 20, all nam
   - Caught filters based on whether Pokemon have been caught or not. 
   - Pokemon can be retrieved by a name in any language and will be returned. For english and french, input is case insensitive.
   - Language if provided without name parameter, returns all matching pokemon with name in specified language. If provided in conjunction with name
-  parameter, then retrieves the matching Pokemon by the name provided, and gives the Pokemon with name in the language provided.
+  parameter, then retrieves the matching Pokemon by the name provided, and gives the Pokemon with name in the language provided. If an unsupported language is passed through, then it will throw a 400.
   - Page defaults to 0th page, values can be passed in to move to corresponding page.
   - Size defaults to 20 elements, can be adjusted to more or less elements per page.
 

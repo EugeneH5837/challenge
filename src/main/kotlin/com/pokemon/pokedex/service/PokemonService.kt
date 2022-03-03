@@ -45,6 +45,7 @@ class PokemonService(
     fun updateCaughtByName(name: String, caught: Boolean): Pokemon {
         val pokemon = pokemonRepository.findOne(PokemonSpecifications.hasName(name))
             .map {
+                // update caught field and save if optional is present
                 it.caught = caught
                 pokemonRepository.save(it)
             }
@@ -69,6 +70,7 @@ class PokemonService(
         val pokemonList = pokemonRepository.findAll(buildSpec(type, name, caught), pageable)
             .stream()
             .map { it ->
+                // handle various outputs based on present params
                 if (language != null) {
                     it.toModel(language)
                 } else if (name != null) {
@@ -79,6 +81,7 @@ class PokemonService(
             }
             .collect(Collectors.toList())
 
+        // return as page object, technically can just return as list since pageable in findAll gets our specified amounts but keep for consistency
         return PageImpl(pokemonList)
     }
 
@@ -104,6 +107,8 @@ class PokemonService(
 
         var specifications: Specification<PokemonEntity>? = null
 
+        // build out spec for query based on parameters, first case only add as null if we've got additional specs to add, otherwise
+        // just query for all without filters
         for (i in listOfSpecification.indices) {
             specifications = if (specifications == null) {
                 where(listOfSpecification[i])
