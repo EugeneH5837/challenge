@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.pokemon.pokedex.model.Pokemon
-import com.pokemon.pokedex.model.entity.NameEntity
 import com.pokemon.pokedex.model.entity.PokemonEntity
 import com.pokemon.pokedex.repository.PokemonJpaRepository
 import com.pokemon.pokedex.repository.PokemonSpecifications
@@ -15,9 +14,7 @@ import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.domain.Specification.where
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.server.ResponseStatusException
-import java.util.*
 import java.util.stream.Collectors
 import kotlin.collections.ArrayList
 
@@ -33,7 +30,7 @@ class PokemonService(
 
     fun getPokemonById(id: Long, language: String?): Pokemon {
         val pokemonEntity = pokemonRepository.findById(id)
-            .orElseThrow{ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find pokemon with ID: $id")}
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find pokemon with ID: $id") }
 
         return pokemonEntity.toModel(language)
     }
@@ -52,16 +49,15 @@ class PokemonService(
         }
     }
 
-    fun getAllPokemonByFilter(type: String?, caught: Boolean?, name: String?, language: String?, pageable: Pageable): List<Pokemon> {
+    fun getAllPokemonByFilter(type: Array<String>?, caught: Boolean?, name: String?, language: String?, pageable: Pageable): List<Pokemon> {
         return pokemonRepository.findAll(buildSpec(type, name, caught), pageable)
             .stream()
             .map { it ->
                 if (language != null) {
                     it.toModel(language)
-                }
-                else if (name != null) {
+                } else if (name != null) {
                     it.toModelWithCorrespondingName(name)
-                }  else {
+                } else {
                     it.toModel(null)
                 }
             }
@@ -69,15 +65,15 @@ class PokemonService(
     }
 
     private fun buildSpec(
-        type: String?,
+        type: Array<String>?,
         name: String?,
         caught: Boolean?
     ): Specification<PokemonEntity>? {
 
         val listOfSpecification = ArrayList<Specification<PokemonEntity>>()
 
-        if (type != null) {
-            listOfSpecification.add(PokemonSpecifications.hasType(type))
+        type?.forEach {
+            listOfSpecification.add(PokemonSpecifications.hasType(it))
         }
 
         if (name != null) {
@@ -104,14 +100,7 @@ class PokemonService(
     fun loadPokemon() {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         val file = this::class.java.classLoader.getResource("data/pokemon.json").readText()
-        val pokemonList =  objectMapper.readValue<List<PokemonEntity>>(file)
-//        pokemonList.forEach { it ->
-//                it.name = NameEntity(it.name.english.lowercase(), it.name.japanese.lowercase(), it.name.chinese.lowercase(), it.name.french.lowercase())
-//                it.type.forEach{
-//                    pokemonType -> pokemonType.type.lowercase()
-//                }
-//            }
-
+        val pokemonList = objectMapper.readValue<List<PokemonEntity>>(file)
 
         pokemonRepository.saveAll(pokemonList)
     }

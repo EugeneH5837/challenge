@@ -51,7 +51,7 @@ class PokemonController(
 
     @GetMapping("/list")
     fun getAllPokemonWithFilter(
-        @RequestParam(required = false) type: String?,
+        @RequestParam(required = false) type: Array<String>?,
         @RequestParam(required = false) caught: Boolean?,
         @RequestParam(required = false) name: String?,
         @RequestParam(required = false) language: String?,
@@ -60,7 +60,7 @@ class PokemonController(
     ): ResponseEntity<List<Pokemon>> {
         return ResponseEntity.ok(
             pokemonService.getAllPokemonByFilter(
-                type?.lowercase(),
+                type,
                 caught,
                 name?.lowercase(),
                 language,
@@ -72,5 +72,13 @@ class PokemonController(
     @GetMapping("/loaddata")
     fun loadData() {
         pokemonService.loadPokemon()
+    }
+
+    @GetMapping("/testArr")
+    fun testArrReq(
+        @RequestParam test: Array<String>
+    ): ResponseEntity<Array<String>> {
+
+        return ResponseEntity.ok(test)
     }
 }

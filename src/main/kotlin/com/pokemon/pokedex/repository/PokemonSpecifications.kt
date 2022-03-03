@@ -19,11 +19,22 @@ class PokemonSpecifications {
                 query.distinct(true)
                 criteriaBuilder.like(
                     criteriaBuilder.lower(
-                        root.join<PokemonEntity, PokemonTypeEntity>("type").get("type"))
-                    , type.lowercase()
+                        root.join<PokemonEntity, PokemonTypeEntity>("type").get("type")
+                    ),
+                    type.lowercase()
                 )
             }
         }
+
+//        fun hasTypes(type: Array<String>): Specification<PokemonEntity>{
+//            return Specification { root, query, criteriaBuilder ->
+//                query.distinct(true)
+//                criteriaBuilder.like(
+//                    criteriaBuilder.lower(
+//                        root.join<PokemonEntity, PokemonTypeEntity>("type").get("type")).`in`(type)
+//                )
+//            }
+//        }
 
         fun hasName(name: String): Specification<PokemonEntity> {
             return Specification { root, query, criteriaBuilder ->
