@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "7dec32b8-3ab4-421d-9ef1-27c16f8a608c",
+		"_postman_id": "9ecad3ce-94cc-4742-8b91-0f2cb8292186",
 		"name": "PokemonService",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -118,33 +118,6 @@
 			"response": []
 		},
 		{
-			"name": "Update caught status of a Pokemon",
-			"request": {
-				"method": "PUT",
-				"header": [],
-				"url": {
-					"raw": "localhost:8080/api/v1/pokemon/2321321?caught=true",
-					"host": [
-						"localhost"
-					],
-					"port": "8080",
-					"path": [
-						"api",
-						"v1",
-						"pokemon",
-						"2321321"
-					],
-					"query": [
-						{
-							"key": "caught",
-							"value": "true"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Get all Pokemon types",
 			"request": {
 				"method": "GET",
@@ -160,6 +133,33 @@
 						"v1",
 						"pokemon",
 						"types"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update caught status of a Pokemon",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/v1/pokemon/1?caught=true",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"pokemon",
+						"1"
+					],
+					"query": [
+						{
+							"key": "caught",
+							"value": "true"
+						}
 					]
 				}
 			},
