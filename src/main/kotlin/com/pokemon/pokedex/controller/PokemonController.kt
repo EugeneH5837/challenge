@@ -2,6 +2,7 @@ package com.pokemon.pokedex.controller
 
 import com.pokemon.pokedex.model.Pokemon
 import com.pokemon.pokedex.service.PokemonService
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -30,18 +31,16 @@ class PokemonController(
     fun updatePokemonCaughtStatus(
         @PathVariable id: Long,
         @RequestParam caught: Boolean
-    ): ResponseEntity<String> {
-        pokemonService.updatePokemonCaughtStatus(id, caught)
-
-        return ResponseEntity.noContent().build()
+    ): ResponseEntity<Pokemon> {
+        return ResponseEntity.ok(pokemonService.updatePokemonCaughtStatusById(id, caught))
     }
 
     @PutMapping("/name/{name}")
     fun updatePokemonCaughtStatusByName(
         @PathVariable name: String,
         @RequestParam caught: Boolean
-    ): ResponseEntity<String> {
-        return ResponseEntity.ok("asdf")
+    ): ResponseEntity<Pokemon> {
+        return ResponseEntity.ok(pokemonService.updateCaughtByName(name, caught))
     }
 
     @GetMapping("/types")
@@ -57,7 +56,7 @@ class PokemonController(
         @RequestParam(required = false) language: String?,
         @RequestParam(required = false, defaultValue = "0") page: Int,
         @RequestParam(required = false, defaultValue = "20") size: Int
-    ): ResponseEntity<List<Pokemon>> {
+    ): ResponseEntity<PageImpl<Pokemon>> {
         return ResponseEntity.ok(
             pokemonService.getAllPokemonByFilter(
                 type,

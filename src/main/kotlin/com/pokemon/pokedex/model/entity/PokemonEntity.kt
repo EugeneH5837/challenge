@@ -2,6 +2,10 @@ package com.pokemon.pokedex.model.entity
 
 import com.pokemon.pokedex.model.Name
 import com.pokemon.pokedex.model.Pokemon
+import com.pokemon.pokedex.utility.Constants.CHINESE
+import com.pokemon.pokedex.utility.Constants.ENGLISH
+import com.pokemon.pokedex.utility.Constants.FRENCH
+import com.pokemon.pokedex.utility.Constants.JAPANESE
 import java.util.stream.Collectors
 import javax.persistence.CascadeType
 import javax.persistence.Entity
@@ -30,19 +34,19 @@ data class PokemonEntity(
 
     var caught: Boolean = false
 ) {
-    fun toModel(language: String?): Pokemon {
+    fun toModel(language: String? = null): Pokemon {
         val name: Name
         when (language) {
-            "english" -> {
+            ENGLISH -> {
                 name = Name(english = this.name.english)
             }
-            "japanese" -> {
+            JAPANESE -> {
                 name = Name(japanese = this.name.japanese)
             }
-            "chinese" -> {
+            CHINESE -> {
                 name = Name(chinese = this.name.chinese)
             }
-            "french" -> {
+            FRENCH -> {
                 name = Name(french = this.name.french)
             }
             else -> {

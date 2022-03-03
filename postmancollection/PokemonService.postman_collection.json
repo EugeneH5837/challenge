@@ -1,0 +1,197 @@
+{
+	"info": {
+		"_postman_id": "7dec32b8-3ab4-421d-9ef1-27c16f8a608c",
+		"name": "PokemonService",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Load Pokemon Data",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/v1/pokemon/loaddata",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"pokemon",
+						"loaddata"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Pokemon By ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/v1/pokemon/1?language=english",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"pokemon",
+						"1"
+					],
+					"query": [
+						{
+							"key": "language",
+							"value": "english"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all Pokemon matching filter(s)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"types\": [\"\", \"\"]\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/api/v1/pokemon/list?caught=true",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"pokemon",
+						"list"
+					],
+					"query": [
+						{
+							"key": "type",
+							"value": "flying, fire",
+							"disabled": true
+						},
+						{
+							"key": "caught",
+							"value": "true"
+						},
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						},
+						{
+							"key": "name",
+							"value": "Bulbasaur",
+							"disabled": true
+						},
+						{
+							"key": "language",
+							"value": "french",
+							"disabled": true
+						},
+						{
+							"key": "size",
+							"value": "30",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update caught status of a Pokemon",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/v1/pokemon/2321321?caught=true",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"pokemon",
+						"2321321"
+					],
+					"query": [
+						{
+							"key": "caught",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all Pokemon types",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/v1/pokemon/types",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"pokemon",
+						"types"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update caught status of Pokemon by name",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/api/v1/pokemon/name/bulbasaur?caught=true",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"v1",
+						"pokemon",
+						"name",
+						"bulbasaur"
+					],
+					"query": [
+						{
+							"key": "caught",
+							"value": "true"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

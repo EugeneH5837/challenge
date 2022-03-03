@@ -9,19 +9,22 @@ import com.pokemon.pokedex.repository.PokemonJpaRepository
 import com.pokemon.pokedex.repository.PokemonSpecifications
 import com.pokemon.pokedex.repository.PokemonTypeJpaRepository
 import mu.KotlinLogging
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.data.jpa.domain.Specification.where
 import org.springframework.http.HttpStatus
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
 import java.util.stream.Collectors
-import kotlin.collections.ArrayList
 
 @Service
 class PokemonService(
     val pokemonRepository: PokemonJpaRepository,
     val pokemonTypeRepository: PokemonTypeJpaRepository,
+    @Value("\${data.path}") val dataPath: String
 ) {
 
     private val logger = KotlinLogging.logger {}
@@ -39,18 +42,31 @@ class PokemonService(
         return pokemonTypeRepository.getDistinctByType()
     }
 
-    fun updatePokemonCaughtStatus(id: Long, caught: Boolean) {
-        val pokemonEntity = pokemonRepository.getById(id)
-        pokemonEntity.caught = caught
+    fun updateCaughtByName(name: String, caught: Boolean): Pokemon {
+        val pokemon = pokemonRepository.findOne(PokemonSpecifications.hasName(name))
+            .map {
+                it.caught = caught
+                pokemonRepository.save(it)
+            }
+            .orElseThrow { ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find pokemon with name: $$name") }
+
+        return pokemon.toModel()
+    }
+
+    fun updatePokemonCaughtStatusById(id: Long, caught: Boolean): Pokemon {
         try {
-            pokemonRepository.save(pokemonEntity)
+            val pokemonEntity = pokemonRepository.getById(id)
+            pokemonEntity.caught = caught
+            return pokemonRepository.save(pokemonEntity).toModel()
+        } catch (ex: JpaObjectRetrievalFailureException) {
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find pokemon with id: $id to update caught status as $caught")
         } catch (ex: Exception) {
             throw RuntimeException("Unable to mark pokemon's caught status as $caught, check your pokemon storage.")
         }
     }
 
-    fun getAllPokemonByFilter(type: Array<String>?, caught: Boolean?, name: String?, language: String?, pageable: Pageable): List<Pokemon> {
-        return pokemonRepository.findAll(buildSpec(type, name, caught), pageable)
+    fun getAllPokemonByFilter(type: Array<String>?, caught: Boolean?, name: String?, language: String?, pageable: Pageable): PageImpl<Pokemon> {
+        val pokemonList = pokemonRepository.findAll(buildSpec(type, name, caught), pageable)
             .stream()
             .map { it ->
                 if (language != null) {
@@ -58,10 +74,12 @@ class PokemonService(
                 } else if (name != null) {
                     it.toModelWithCorrespondingName(name)
                 } else {
-                    it.toModel(null)
+                    it.toModel()
                 }
             }
             .collect(Collectors.toList())
+
+        return PageImpl(pokemonList)
     }
 
     private fun buildSpec(
@@ -99,7 +117,7 @@ class PokemonService(
 
     fun loadPokemon() {
         objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        val file = this::class.java.classLoader.getResource("data/pokemon.json").readText()
+        val file = this::class.java.classLoader.getResource(dataPath).readText()
         val pokemonList = objectMapper.readValue<List<PokemonEntity>>(file)
 
         pokemonRepository.saveAll(pokemonList)
