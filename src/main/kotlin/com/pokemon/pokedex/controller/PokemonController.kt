@@ -73,12 +73,4 @@ class PokemonController(
     fun loadData() {
         pokemonService.loadPokemon()
     }
-
-    @GetMapping("/testArr")
-    fun testArrReq(
-        @RequestParam test: Array<String>
-    ): ResponseEntity<Array<String>> {
-
-        return ResponseEntity.ok(test)
-    }
 }
