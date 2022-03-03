@@ -1,7 +1,8 @@
 ## README for Pokemon Challenge
 
 ### Instructions for running
-Application is built on jvm version 11, ensure you have at least version 11 installed locally.
+Application is built on jdk 11, ensure you have at least version 11 installed locally. The jdk version can be changed in the `build.gradle` file 
+where it specifies `jvmTarget={version}` but this service should be run with at minimum jdk 1.8.
 
 To start off, inside main directory of project first build using gradle.
 
